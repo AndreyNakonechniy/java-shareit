@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserDto;
 import ru.practicum.shareit.user.storage.UserStorage;
-import ru.practicum.shareit.user.storage.UserStorageImpl;
 
 import java.util.List;
 
@@ -30,7 +29,7 @@ public class UserService {
         return userStorage.updateUser(id, userDto);
     }
 
-    public void deleteUser(Long id){
+    public void deleteUser(Long id) {
         userStorage.deleteUser(id);
     }
 

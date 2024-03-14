@@ -1,8 +1,6 @@
 package ru.practicum.shareit.user.storage;
 
 
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.DuplicateEmailException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -76,7 +74,7 @@ public class UserStorageImpl implements UserStorage {
         }
     }
 
-    private void checkUser(Long userId){
+    private void checkUser(Long userId) {
         if (!users.containsKey(userId)) {
             throw new NotFoundException("Такого пользователя не существует");
         }
