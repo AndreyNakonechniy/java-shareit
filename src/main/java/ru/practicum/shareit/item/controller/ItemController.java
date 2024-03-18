@@ -25,22 +25,22 @@ public class ItemController {
 
     @GetMapping("/{itemId}")
     public Item getItemById(@RequestHeader(userHeader) Long userId, @PathVariable Long itemId) {
-        return itemService.getItemById(userId, itemId);
+        return itemService.getById(userId, itemId);
     }
 
     @PostMapping
     public Item createItem(@RequestHeader(userHeader) Long userId, @Valid @RequestBody ItemDto itemDto) {
-        return itemService.createItem(userId, itemDto);
+        return itemService.create(userId, itemDto);
     }
 
     @PatchMapping("/{itemId}")
     public Item updateItem(@RequestHeader(userHeader) Long userId, @PathVariable Long itemId, @RequestBody ItemDto itemDto) {
-        return itemService.updateItem(userId, itemId, itemDto);
+        return itemService.update(userId, itemId, itemDto);
     }
 
     @GetMapping("/search")
     public List<Item> searchItem(@RequestHeader(userHeader) Long userId, @RequestParam String text) {
-        return itemService.searchItem(userId, text);
+        return itemService.search(userId, text);
     }
 
 

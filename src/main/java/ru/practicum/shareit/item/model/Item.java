@@ -11,8 +11,7 @@ public class Item {
     private String name;
     private String description;
     private Boolean available;
-    private Long owner;
-    private Long request;
+    private Long ownerId;
 
     public Item(String name, String description, boolean available) {
         this.name = name;

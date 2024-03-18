@@ -17,6 +17,12 @@ import java.util.Map;
 @Component
 public class UserStorageImpl implements UserStorage {
 
+    private final UserMapper mapper;
+
+    public UserStorageImpl(UserMapper mapper) {
+        this.mapper = mapper;
+    }
+
     private Map<Long, User> users = new HashMap<>();
     private Long id = 1L;
 
@@ -33,7 +39,7 @@ public class UserStorageImpl implements UserStorage {
 
     @Override
     public User createUser(UserDto userDto) {
-        User user = UserMapper.userFromDto(userDto);
+        User user = mapper.userFromDto(userDto);
         user.setId(id);
         checkEmail(user);
         users.put(id, user);
@@ -44,7 +50,7 @@ public class UserStorageImpl implements UserStorage {
     @Override
     public User updateUser(Long userId, UserDto userDto) {
         checkUser(userId);
-        User userToCheck = UserMapper.userFromDto(userDto);
+        User userToCheck = mapper.userFromDto(userDto);
         userToCheck.setId(userId);
         checkEmail(userToCheck);
         User user = users.get(userId);
@@ -74,7 +80,7 @@ public class UserStorageImpl implements UserStorage {
         }
     }
 
-    private void checkUser(Long userId) {
+    public void checkUser(Long userId) {
         if (!users.containsKey(userId)) {
             throw new NotFoundException("Такого пользователя не существует");
         }
