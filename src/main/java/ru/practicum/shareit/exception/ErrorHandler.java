@@ -1,20 +1,27 @@
 package ru.practicum.shareit.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+
 @RestControllerAdvice
+@Slf4j
 public class ErrorHandler {
 
     @ExceptionHandler(DuplicateEmailException.class)
-    public ResponseEntity<ErrorMessage> duplicateEmailExceptionHandler(DuplicateEmailException e) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorMessage(e.getMessage()));
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorMessage duplicateEmailExceptionHandler(DuplicateEmailException e) {
+        log.info("Ошибка, дублированный email");
+        return new ErrorMessage(e.getMessage());
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ErrorMessage> notFoundExceptionHandler(NotFoundException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorMessage(e.getMessage()));
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorMessage notFoundExceptionHandler(NotFoundException e) {
+        log.info("Ошибка, объект не найден");
+        return new ErrorMessage(e.getMessage());
     }
 }

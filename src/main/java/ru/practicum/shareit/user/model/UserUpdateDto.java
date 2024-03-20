@@ -3,16 +3,12 @@ package ru.practicum.shareit.user.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import javax.validation.constraints.Email;
 
 @Data
 @AllArgsConstructor
-public class User {
-    private Long id;
+public class UserUpdateDto {
     private String name;
+    @Email
     private String email;
-
-    public User(String name, String email) {
-        this.name = name;
-        this.email = email;
-    }
 }

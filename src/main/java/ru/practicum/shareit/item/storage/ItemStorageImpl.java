@@ -3,73 +3,77 @@ package ru.practicum.shareit.item.storage;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.mapper.ItemMapper;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.dto.ItemUpdateDto;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
 public class ItemStorageImpl implements ItemStorage {
-    private final ItemMapper mapper;
 
-    public ItemStorageImpl(ItemMapper mapper) {
-        this.mapper = mapper;
-    }
-
-    private Map<Long, Item> items = new HashMap<>();
+    private Map<Long, ItemDto> items = new HashMap<>();
+    private Map<Long, List<ItemDto>> userItems = new HashMap<>();
     private Long id = 1L;
 
     @Override
-    public List<Item> getOwnerItems(Long userId) {
-        return items.values().stream().filter(item -> item.getOwnerId().equals(userId)).collect(Collectors.toList());
+    public List<ItemDto> getOwnerItems(Long userId) {
+        return userItems.get(userId);
     }
 
     @Override
-    public Item getById(Long itemId) {
+    public ItemDto getById(Long itemId) {
         itemCheck(itemId);
         return items.get(itemId);
     }
 
     @Override
-    public Item create(Long userId, ItemDto itemDto) {
-        Item item = mapper.itemFromDto(itemDto);
-        item.setId(id);
-        item.setOwnerId(userId);
-        items.put(id, item);
+    public ItemDto create(ItemDto itemDto) {
+        itemDto.setId(id);
+        items.put(id, itemDto);
         id++;
-        return item;
+        Long userId = itemDto.getOwner().getId();
+        List<ItemDto> itemsToMap;
+        if (!userItems.containsKey(userId)) {
+            itemsToMap = new ArrayList<>();
+        } else {
+            itemsToMap = userItems.get(userId);
+        }
+        itemsToMap.add(itemDto);
+        userItems.put(userId, itemsToMap);
+
+        return itemDto;
     }
 
     @Override
-    public Item update(Long userId, Long itemId, ItemDto itemDto) {
-        itemCheck(itemId);
+    public ItemDto update(Long userId, Long itemId, ItemUpdateDto itemUpdateDto) {
 
-        Item item = items.get(itemId);
-        if (!item.getOwnerId().equals(userId)) {
+        ItemDto itemDto = items.get(itemId);
+
+        if (!itemDto.getOwner().getId().equals(userId)) {
             throw new NotFoundException("У юзера нет этой вещи");
         }
-        if (itemDto.getName() != null) {
-            item.setName(itemDto.getName());
+        if (itemUpdateDto.getName() != null) {
+            itemDto.setName(itemUpdateDto.getName());
         }
-        if (itemDto.getDescription() != null) {
-            item.setDescription(itemDto.getDescription());
+        if (itemUpdateDto.getDescription() != null) {
+            itemDto.setDescription(itemUpdateDto.getDescription());
         }
-        if (itemDto.getAvailable() != null) {
-            item.setAvailable(itemDto.getAvailable());
+        if (itemUpdateDto.getAvailable() != null) {
+            itemDto.setAvailable(itemUpdateDto.getAvailable());
         }
-        items.put(itemId, item);
-        return item;
+
+        items.put(itemId, itemDto);
+        return itemDto;
     }
 
     @Override
-    public List<Item> search(String text) {
-        return items.values().stream().filter(Item::getAvailable)
+    public List<ItemDto> search(String text) {
+        return items.values().stream().filter(ItemDto::getAvailable)
                 .filter(item -> item.getName().toLowerCase().contains(text.toLowerCase()) ||
                         item.getDescription().toLowerCase().contains(text.toLowerCase())).collect(Collectors.toList());
     }
 
-    private void itemCheck(Long itemId) {
+    public void itemCheck(Long itemId) {
         if (!items.containsKey(itemId)) {
             throw new NotFoundException("Нет такой вещи");
         }

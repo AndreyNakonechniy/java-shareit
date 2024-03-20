@@ -5,78 +5,85 @@ import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.DuplicateEmailException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.mapper.UserMapper;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserDto;
+import ru.practicum.shareit.user.model.UserUpdateDto;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Component
 public class UserStorageImpl implements UserStorage {
 
-    private final UserMapper mapper;
+    private Map<Long, UserDto> users = new HashMap<>();
+    private Map<String, Long> emails = new HashMap<>();
+    private Long id = 1L;
+
+    private UserMapper mapper;
 
     public UserStorageImpl(UserMapper mapper) {
         this.mapper = mapper;
     }
 
-    private Map<Long, User> users = new HashMap<>();
-    private Long id = 1L;
-
     @Override
-    public List<User> getAllUsers() {
+    public List<UserDto> getAllUsers() {
         return new ArrayList<>(users.values());
     }
 
     @Override
-    public User getUserById(Long userId) {
-        checkUser(userId);
+    public UserDto getUserById(Long userId) {
         return users.get(userId);
     }
 
     @Override
-    public User createUser(UserDto userDto) {
-        User user = mapper.userFromDto(userDto);
-        user.setId(id);
-        checkEmail(user);
-        users.put(id, user);
+    public UserDto createUser(UserDto userDto) {
+        userDto.setId(id);
+
+        checkEmail(userDto);
+        emails.put(userDto.getEmail(), userDto.getId());
+
+        users.put(id, userDto);
         id++;
-        return user;
+
+        return userDto;
     }
 
     @Override
-    public User updateUser(Long userId, UserDto userDto) {
-        checkUser(userId);
-        User userToCheck = mapper.userFromDto(userDto);
+    public UserDto updateUser(Long userId, UserUpdateDto userUpdateDto) {
+
+        UserDto userToCheck = mapper.userUpdate(userUpdateDto);
         userToCheck.setId(userId);
         checkEmail(userToCheck);
-        User user = users.get(userId);
-        if (userDto.getName() != null) {
-            user.setName(userDto.getName());
-        }
-        if (userDto.getEmail() != null) {
-            user.setEmail(userDto.getEmail());
 
+        UserDto userDto = getUserById(userId);
+        emails.remove(userDto.getEmail());
+
+        if (userUpdateDto.getName() != null) {
+            userDto.setName(userUpdateDto.getName());
         }
-        users.put(userId, user);
-        return user;
+        if (userUpdateDto.getEmail() != null) {
+            userDto.setEmail(userUpdateDto.getEmail());
+            emails.put(userDto.getEmail(), userDto.getId());
+        }
+
+        users.put(userDto.getId(), userDto);
+        return userDto;
     }
 
     @Override
     public void deleteUser(Long userId) {
         checkUser(userId);
+        UserDto userDto = users.get(userId);
+        emails.remove(userDto.getEmail());
         users.remove(userId);
     }
 
-    private void checkEmail(User user) {
-        boolean isNotUnique = users.values().stream().anyMatch(thisUser -> thisUser.getEmail().equals(user.getEmail())
-                && !thisUser.getId().equals(user.getId()));
-
-        if (isNotUnique) {
-            throw new DuplicateEmailException("Пользователь с таким email уже есть");
+    public void checkEmail(UserDto userDto) {
+        if (emails.containsKey(userDto.getEmail())) {
+            Long userId = emails.get(userDto.getEmail());
+            UserDto userToCheck = users.get(userId);
+            if (userToCheck.getEmail().equals(userDto.getEmail()) && !userToCheck.getId().equals(userDto.getId())) {
+                throw new DuplicateEmailException("Пользователь с таким email уже есть");
+            }
         }
     }
 

@@ -2,42 +2,52 @@ package ru.practicum.shareit.item.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.item.dto.ItemCreateDto;
+import ru.practicum.shareit.item.dto.ItemUpdateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.storage.ItemStorage;
+import ru.practicum.shareit.user.model.UserDto;
 import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.util.Collections;
 import java.util.List;
 
-@AllArgsConstructor
+
 @Service
+@AllArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
     private UserStorage userStorage;
     private ItemStorage itemStorage;
+    private ItemMapper mapper;
 
-    public List<Item> getOwnerItems(Long userId) {
+    public List<ItemDto> getOwnerItems(Long userId) {
         userStorage.checkUser(userId);
         return itemStorage.getOwnerItems(userId);
     }
 
-    public Item getById(Long userId, Long itemId) {
+    public ItemDto getById(Long userId, Long itemId) {
         userStorage.checkUser(userId);
         return itemStorage.getById(itemId);
     }
 
-    public Item create(Long userId, ItemDto itemDto) {
+    public ItemDto create(Long userId, ItemCreateDto itemCreateDto) {
         userStorage.checkUser(userId);
-        return itemStorage.create(userId, itemDto);
+        UserDto userDto = userStorage.getUserById(userId);
+        ItemDto itemDto = mapper.itemFromDto(itemCreateDto);
+        itemDto.setOwner(userDto);
+        return itemStorage.create(itemDto);
     }
 
-    public Item update(Long userId, Long itemId, ItemDto itemDto) {
+    public ItemDto update(Long userId, Long itemId, ItemUpdateDto itemUpdateDto) {
         userStorage.checkUser(userId);
-        return itemStorage.update(userId, itemId, itemDto);
+        itemStorage.itemCheck(itemId);
+
+        return itemStorage.update(userId, itemId, itemUpdateDto);
     }
 
-    public List<Item> search(Long userId, String text) {
+    public List<ItemDto> search(Long userId, String text) {
         userStorage.checkUser(userId);
         if (text.isEmpty()) {
             return Collections.emptyList();
