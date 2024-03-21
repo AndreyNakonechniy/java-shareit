@@ -2,13 +2,13 @@ package ru.practicum.shareit.user.controller;
 
 
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.user.model.UserDto;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserCreateDto;
 import ru.practicum.shareit.user.model.UserUpdateDto;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -19,29 +19,29 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
-    public List<UserDto> getAllUsers() {
-        return userService.getAllUsers();
+    public List<User> getAll() {
+        return userService.getAll();
     }
 
     @GetMapping("/{userId}")
-    public UserDto getUserById(@PathVariable Long userId) {
-        return userService.getUserById(userId);
+    public User getById(@PathVariable Long userId) {
+        return userService.getById(userId);
     }
 
     @PostMapping
-    public UserDto createUser(@Valid @RequestBody UserCreateDto userCreateDto, HttpServletResponse response) {
-        response.setStatus(HttpServletResponse.SC_CREATED);
-        return userService.createUser(userCreateDto);
+    @ResponseStatus(HttpStatus.CREATED)
+    public User create(@Valid @RequestBody UserCreateDto userCreateDto) {
+        return userService.create(userCreateDto);
     }
 
     @PatchMapping("/{userId}")
-    public UserDto updateUser(@PathVariable Long userId, @Valid @RequestBody UserUpdateDto userUpdateDto) {
-        return userService.updateUser(userId, userUpdateDto);
+    public User update(@PathVariable Long userId, @Valid @RequestBody UserUpdateDto userUpdateDto) {
+        return userService.update(userId, userUpdateDto);
     }
 
     @DeleteMapping("/{userId}")
-    public void deleteUser(@PathVariable Long userId, HttpServletResponse response) {
-        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-        userService.deleteUser(userId);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long userId) {
+        userService.delete(userId);
     }
 }

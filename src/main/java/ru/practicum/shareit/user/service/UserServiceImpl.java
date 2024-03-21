@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserDto;
 import ru.practicum.shareit.user.model.UserCreateDto;
 import ru.practicum.shareit.user.model.UserUpdateDto;
@@ -16,28 +17,32 @@ public class UserServiceImpl implements UserService {
     private UserStorage userStorage;
     private UserMapper mapper;
 
-    public List<UserDto> getAllUsers() {
-        return userStorage.getAllUsers();
+    public List<User> getAll() {
+        return userStorage.getAll();
     }
 
-    public UserDto getUserById(Long id) {
+    public User getById(Long id) {
         userStorage.checkUser(id);
-        return userStorage.getUserById(id);
+        return userStorage.getById(id);
     }
 
-    public UserDto createUser(UserCreateDto userCreateDto) {
+    public User create(UserCreateDto userCreateDto) {
         UserDto userDto = mapper.userCreateDto(userCreateDto);
-        return userStorage.createUser(userDto);
+        User user = mapper.toUser(userDto);
+        return userStorage.create(user);
     }
 
-    public UserDto updateUser(Long id, UserUpdateDto userUpdateDto) {
+    public User update(Long id, UserUpdateDto userUpdateDto) {
         userStorage.checkUser(id);
+        UserDto userDto = mapper.userUpdate(userUpdateDto);
+        userDto.setId(id);
+        User user = mapper.toUser(userDto);
 
-        return userStorage.updateUser(id, userUpdateDto);
+        return userStorage.update(user);
     }
 
-    public void deleteUser(Long id) {
-        userStorage.deleteUser(id);
+    public void delete(Long id) {
+        userStorage.delete(id);
     }
 
 }

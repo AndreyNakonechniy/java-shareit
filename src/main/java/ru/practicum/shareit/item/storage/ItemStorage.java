@@ -1,20 +1,19 @@
 package ru.practicum.shareit.item.storage;
 
-import ru.practicum.shareit.item.dto.ItemUpdateDto;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
 
 public interface ItemStorage {
-    public List<ItemDto> getOwnerItems(Long userId);
+    public List<Item> getOwnerItems(Long userId);
 
-    public ItemDto getById(Long itemId);
+    public Item getById(Long itemId);
 
-    public ItemDto create(ItemDto itemDto);
+    public Item create(Item item);
 
-    public ItemDto update(Long userId, Long itemId, ItemUpdateDto itemUpdateDto);
+    public Item update(Item item);
 
-    public List<ItemDto> search(String text);
+    public List<Item> search(String text);
 
     public void itemCheck(Long itemId);
 }
