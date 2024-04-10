@@ -24,4 +24,18 @@ public class ErrorHandler {
         log.info("Ошибка, объект не найден");
         return new ErrorMessage(e.getMessage());
     }
+
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorMessage validationExceptionHandler(ValidationException e) {
+        log.info("Некорректный запрос");
+        return new ErrorMessage(e.getMessage());
+    }
+
+    @ExceptionHandler(UnsupportedStatusException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorMessage unsupportedStatusExceptionHandler(UnsupportedStatusException e) {
+        log.info("Некорректный запрос");
+        return new ErrorMessage(e.getMessage());
+    }
 }
