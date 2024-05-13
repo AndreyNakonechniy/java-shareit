@@ -136,9 +136,9 @@ class ItemControllerTest {
     @Test
     void getById() throws Exception {
         ItemBookingDto itemBookingDtoTest = new ItemBookingDto(1L, "name", "desc", true, owner, null, null, Collections.emptyList());
-        when(service.getById(1L,1L)).thenReturn(itemBookingDtoTest);
+        when(service.getById(1L, 1L)).thenReturn(itemBookingDtoTest);
 
-        mockMvc.perform(get("/items/{itemId}",1L)
+        mockMvc.perform(get("/items/{itemId}", 1L)
                         .header("X-Sharer-User-Id", 1L)
                         .content(mapper.writeValueAsString(itemBookingDtoTest))
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -149,7 +149,7 @@ class ItemControllerTest {
 
     @Test
     void search() throws Exception {
-        when(service.search(1L,"desc",0,10)).thenReturn(List.of(itemDto));
+        when(service.search(1L, "desc", 0, 10)).thenReturn(List.of(itemDto));
 
         mockMvc.perform(get("/items/search")
                         .header("X-Sharer-User-Id", 1L)
@@ -164,12 +164,12 @@ class ItemControllerTest {
     @Test
     void addComment() throws Exception {
         CommentCreateDto commentCreateDto = new CommentCreateDto("text");
-        Item itemTest = new Item(1L,"name","desc",true,owner,null);
-        User author = new User(1L,"name", "email@email.ru");
-        CommentDto commentDtoTest = new CommentDto(1L,"text", LocalDateTime.now(),itemTest,author,"name");
-        when(service.addComment(1L,1L,commentCreateDto)).thenReturn(commentDtoTest);
+        Item itemTest = new Item(1L, "name", "desc", true, owner, null);
+        User author = new User(1L, "name", "email@email.ru");
+        CommentDto commentDtoTest = new CommentDto(1L, "text", LocalDateTime.now(), itemTest, author, "name");
+        when(service.addComment(1L, 1L, commentCreateDto)).thenReturn(commentDtoTest);
 
-        mockMvc.perform(post("/items/{itemId}/comment",1L)
+        mockMvc.perform(post("/items/{itemId}/comment", 1L)
                         .header("X-Sharer-User-Id", 1L)
                         .content(mapper.writeValueAsString(commentDtoTest))
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -180,15 +180,16 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.text", is(commentDtoTest.getText())))
                 .andExpect(jsonPath("$.authorName", is(commentDtoTest.getAuthorName())));
 
-        verify(service).addComment(1L,1L,commentCreateDto);
+        verify(service).addComment(1L, 1L, commentCreateDto);
     }
+
     @Test
     void addCommentWithInvalidText() throws Exception {
-        Item itemTest = new Item(1L,"name","desc",true,owner,null);
-        User author = new User(1L,"name", "email@email.ru");
-        CommentDto commentDtoTest = new CommentDto(1L,"", LocalDateTime.now(),itemTest,author,"name");
+        Item itemTest = new Item(1L, "name", "desc", true, owner, null);
+        User author = new User(1L, "name", "email@email.ru");
+        CommentDto commentDtoTest = new CommentDto(1L, "", LocalDateTime.now(), itemTest, author, "name");
 
-        mockMvc.perform(post("/items/{itemId}/comment",1L)
+        mockMvc.perform(post("/items/{itemId}/comment", 1L)
                         .header("X-Sharer-User-Id", 1L)
                         .content(mapper.writeValueAsString(commentDtoTest))
                         .characterEncoding(StandardCharsets.UTF_8)
