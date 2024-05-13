@@ -119,7 +119,7 @@ class UserControllerTest {
     @Test
     void deleteTest() throws Exception {
 
-        mockMvc.perform(delete("/0users/{userId}", 1L))
+        mockMvc.perform(delete("/users/{userId}", 1L))
                 .andExpect(status().isNoContent());
         verify(userService).delete(1L);
     }
