@@ -116,6 +116,14 @@ class ItemServiceImplTest {
     }
 
     @Test
+    void updateWithUserWithNoItem() {
+        User userTest = new User(3L, "name", "email@mail.ru");
+        when(userRepository.findById(3L)).thenReturn(Optional.of(userTest));
+        when(itemRepository.findById(1L)).thenReturn(Optional.ofNullable(item));
+        assertThrows(NotFoundException.class, () -> itemService.update(3L, 1L, itemUpdateDto));
+    }
+
+    @Test
     void getById() {
         when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(owner));
         when(itemRepository.findById(1L)).thenReturn(Optional.ofNullable(item));
@@ -128,6 +136,21 @@ class ItemServiceImplTest {
 
         ItemBookingDto itemBookingDtoToCheck = itemService.getById(1L, 1L);
         assertEquals(itemBookingDto, itemBookingDtoToCheck);
+    }
+
+    @Test
+    void getByIdWithEmptyLastAndNextBooking() {
+        ItemBookingDto itemBookingDtoTest = new ItemBookingDto(1L, "name", "description", true, owner, null, null, List.of(comment));
+
+        when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(owner));
+        when(itemRepository.findById(1L)).thenReturn(Optional.ofNullable(item));
+        Comment currentComment = new Comment(1L, "text", LocalDateTime.now(), item, author);
+
+        when(bookingRepository.findAllByItemIdOrderByStart(1L)).thenReturn(List.of());
+        when(commentRepository.findAllByItemId(1L)).thenReturn(List.of(currentComment));
+
+        ItemBookingDto itemBookingDtoToCheck = itemService.getById(1L, 1L);
+        assertEquals(itemBookingDtoTest, itemBookingDtoToCheck);
     }
 
     @Test
@@ -156,6 +179,23 @@ class ItemServiceImplTest {
         List<ItemBookingDto> itemBookingDtos = itemService.getOwnerItems(1L, 0, 10);
         assertEquals(1, itemBookingDtos.size());
         assertEquals(List.of(itemBookingDto), itemBookingDtos);
+    }
+
+    @Test
+    void getOwnerItemsWithEmptyLastAndNextBooking() {
+        ItemBookingDto itemBookingDtoTest = new ItemBookingDto(1L, "name", "description", true, owner, null, null, List.of(comment));
+
+        when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(owner));
+        when(itemRepository.findByOwnerId(1L, defaultPageRequest)).thenReturn(List.of(item));
+
+        Comment currentComment = new Comment(1L, "text", LocalDateTime.now(), item, author);
+
+        when(bookingRepository.findAllByItemIdOrderByStart(1L)).thenReturn(List.of());
+        when(commentRepository.findAllByItemId(1L)).thenReturn(List.of(currentComment));
+
+        List<ItemBookingDto> itemBookingDtos = itemService.getOwnerItems(1L, 0, 10);
+        assertEquals(1, itemBookingDtos.size());
+        assertEquals(List.of(itemBookingDtoTest), itemBookingDtos);
     }
 
     @Test
