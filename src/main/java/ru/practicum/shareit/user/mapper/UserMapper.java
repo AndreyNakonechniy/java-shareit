@@ -8,7 +8,7 @@ import ru.practicum.shareit.user.dto.UserUpdateDto;
 
 @Component
 public class UserMapper {
-    public User userCreateDto(UserCreateDto userCreateDto) {
+    public User userCreate(UserCreateDto userCreateDto) {
         return new User(userCreateDto.getName(), userCreateDto.getEmail());
     }
 

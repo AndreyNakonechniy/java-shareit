@@ -10,11 +10,20 @@ import ru.practicum.shareit.user.model.User;
 @Component
 public class ItemMapper {
     public Item toItem(ItemCreateDto itemCreateDto, User user) {
-        return new Item(itemCreateDto.getName(), itemCreateDto.getDescription(), itemCreateDto.getAvailable(), user);
+        Item item = new Item(itemCreateDto.getName(), itemCreateDto.getDescription(), itemCreateDto.getAvailable(), user);
+        if (itemCreateDto.getRequestId() != null) {
+            item.setRequestId(itemCreateDto.getRequestId());
+        }
+        return item;
     }
 
+
     public ItemDto toItemDto(Item item) {
-        return new ItemDto(item.getId(), item.getName(), item.getDescription(), item.getAvailable(), item.getOwner());
+        ItemDto itemDto = new ItemDto(item.getId(), item.getName(), item.getDescription(), item.getAvailable(), item.getOwner());
+        if (item.getRequestId() != null) {
+            itemDto.setRequestId(item.getRequestId());
+        }
+        return itemDto;
     }
 
     public ItemBookingDto toItemBookingDto(Item item) {

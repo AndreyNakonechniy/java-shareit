@@ -26,10 +26,22 @@ public class Item {
     @JoinColumn(name = "user_id")
     private User owner;
 
+    @Column(name = "request_id")
+    private Long requestId;
+
     public Item(String name, String description, Boolean available, User owner) {
         this.name = name;
         this.description = description;
         this.available = available;
         this.owner = owner;
     }
+
+    public Item(String name, String description, Boolean available, User owner, Long requestId) {
+        this.name = name;
+        this.description = description;
+        this.available = available;
+        this.owner = owner;
+        this.requestId = requestId;
+    }
+
 }
