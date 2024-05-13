@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request.service;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,8 +26,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ItemRequestServiceImplTest {
@@ -47,17 +47,25 @@ class ItemRequestServiceImplTest {
     User owner = new User(1L, "owner", "owner@owner.com");
     Item item = new Item(1L, "name", "description", true, owner, 1L);
 
-    static LocalDateTime testTime = LocalDateTime.of(2023, 12, 12, 12, 12);
+    private static final LocalDateTime testTime = LocalDateTime.of(2023, 12, 12, 12, 12);
 
     PageRequest defaultPageRequest = PageRequest.of(0, 10);
 
     ItemRequest itemRequest = new ItemRequest(1L, "description", requester, LocalDateTime.now(), List.of(item));
     ItemRequestCreateDto itemRequestCreateDto = new ItemRequestCreateDto("description");
 
+    private static MockedStatic<LocalDateTime> mockTime;
+
     @BeforeAll
-    static void changeTime() {
-        MockedStatic<LocalDateTime> mockTime = Mockito.mockStatic(LocalDateTime.class);
+    public static void changeTime() {
+        mockTime = Mockito.mockStatic(LocalDateTime.class);
         mockTime.when(LocalDateTime::now).thenReturn(testTime);
+
+    }
+
+    @AfterAll
+    static void close() {
+        mockTime.close();
     }
 
     @Test

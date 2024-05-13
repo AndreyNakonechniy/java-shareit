@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.service;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,13 +62,20 @@ class ItemServiceImplTest {
     CommentCreateDto commentCreateDto = new CommentCreateDto("text");
     ItemBookingDto itemBookingDto = new ItemBookingDto(1L, "name", "description", true, owner, lastBooking, nextBooking, List.of(comment));
     ItemMapper mapper = new ItemMapper();
-    static LocalDateTime testTime = LocalDateTime.of(2023, 12, 12, 12, 12);
+    private static final LocalDateTime testTime = LocalDateTime.of(2023, 12, 12, 12, 12);
     PageRequest defaultPageRequest = PageRequest.of(0, 10);
 
+    private static MockedStatic<LocalDateTime> mockTime;
+
     @BeforeAll
-    static void changeTime() {
-        MockedStatic<LocalDateTime> mockTime = Mockito.mockStatic(LocalDateTime.class);
+    public static void changeTime() {
+        mockTime = Mockito.mockStatic(LocalDateTime.class);
         mockTime.when(LocalDateTime::now).thenReturn(testTime);
+    }
+
+    @AfterAll
+    static void close() {
+        mockTime.close();
     }
 
     @Test

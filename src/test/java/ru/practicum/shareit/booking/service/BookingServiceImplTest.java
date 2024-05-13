@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.service;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,10 +58,17 @@ class BookingServiceImplTest {
     static LocalDateTime testTime = LocalDateTime.of(2023, 12, 12, 12, 12);
     PageRequest defaultPageRequest = PageRequest.of(0, 10);
 
+    private static MockedStatic<LocalDateTime> mockTime;
+
     @BeforeAll
     static void changeTime() {
-        MockedStatic<LocalDateTime> mockTime = Mockito.mockStatic(LocalDateTime.class);
+        mockTime = Mockito.mockStatic(LocalDateTime.class);
         mockTime.when(LocalDateTime::now).thenReturn(testTime);
+    }
+
+    @AfterAll
+    static void close() {
+        mockTime.close();
     }
 
     @Test
