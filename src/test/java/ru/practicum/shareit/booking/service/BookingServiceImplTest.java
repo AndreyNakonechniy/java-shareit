@@ -83,15 +83,12 @@ class BookingServiceImplTest {
 
     @Test
     void createWithUserNotFoundException() {
-        when(userRepository.findById(0L)).thenThrow(NotFoundException.class);
-
         assertThrows(NotFoundException.class, () -> bookingService.create(0L, bookingCreateDto));
     }
 
     @Test
     void createWithItemNotFoundException() {
         when(userRepository.findById(2L)).thenReturn(Optional.ofNullable(booker));
-        when(itemRepository.findById(0L)).thenThrow(NotFoundException.class);
         BookingCreateDto testBooking = new BookingCreateDto(0L, LocalDateTime.now(), LocalDateTime.now());
 
         assertThrows(NotFoundException.class, () -> bookingService.create(2L, testBooking));
@@ -109,8 +106,6 @@ class BookingServiceImplTest {
 
     @Test
     void updateWithBookingNotFoundException() {
-        when(bookingRepository.findById(0L)).thenThrow(NotFoundException.class);
-
         assertThrows(NotFoundException.class, () -> bookingService.update(1L, 0L, true));
     }
 
@@ -140,16 +135,12 @@ class BookingServiceImplTest {
 
     @Test
     void getBookingByIdWithUserNotFoundException() {
-        when(userRepository.findById(0L)).thenThrow(NotFoundException.class);
-
         assertThrows(NotFoundException.class, () -> bookingService.getBookingById(0L, 1L));
     }
 
     @Test
     void getBookingByIdWithBookingNotFoundException() {
         when(userRepository.findById(2L)).thenReturn(Optional.ofNullable(owner));
-        when(bookingRepository.findById(0L)).thenThrow(NotFoundException.class);
-
         assertThrows(NotFoundException.class, () -> bookingService.getBookingById(2L, 0L));
     }
 
@@ -221,8 +212,6 @@ class BookingServiceImplTest {
 
     @Test
     void getAllWithNotFoundException() {
-        when(userRepository.findById(0L)).thenThrow(NotFoundException.class);
-
         assertThrows(NotFoundException.class, () -> bookingService.getAll(0L, "ALL", 0, 10));
     }
 
@@ -301,8 +290,6 @@ class BookingServiceImplTest {
 
     @Test
     void getAllOwnerWithNotFoundException() {
-        when(userRepository.findById(0L)).thenThrow(NotFoundException.class);
-
         assertThrows(NotFoundException.class, () -> bookingService.getAllOwner(0L, "ALL", 0, 10));
     }
 
@@ -311,5 +298,31 @@ class BookingServiceImplTest {
         when(userRepository.findById(2L)).thenReturn(Optional.ofNullable(booker));
 
         assertThrows(UnsupportedStatusException.class, () -> bookingService.getAllOwner(2L, "state", 0, 10));
+    }
+
+    @Test
+    void bookingValidationItemNotAvailable() {
+        Item itemTest = new Item(1L, "name", "description", false, owner, null);
+        when(userRepository.findById(2L)).thenReturn(Optional.ofNullable(booker));
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(itemTest));
+
+        assertThrows(ValidationException.class, () -> bookingService.create(2L, bookingCreateDto));
+    }
+
+    @Test
+    void bookingValidationOwnerIsBooker() {
+        when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(owner));
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
+
+        assertThrows(NotFoundException.class, () -> bookingService.create(1L, bookingCreateDto));
+    }
+
+    @Test
+    void bookingValidationWrongDate() {
+        when(userRepository.findById(2L)).thenReturn(Optional.ofNullable(booker));
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
+        BookingCreateDto bookingCreateDtoTest = new BookingCreateDto(1L, LocalDateTime.now().plusHours(1), LocalDateTime.now().minusHours(1));
+
+        assertThrows(ValidationException.class, () -> bookingService.create(2L, bookingCreateDtoTest));
     }
 }

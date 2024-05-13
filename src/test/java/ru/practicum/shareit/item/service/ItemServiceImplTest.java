@@ -89,7 +89,6 @@ class ItemServiceImplTest {
 
     @Test
     void createWithException() {
-        when(userRepository.findById(0L)).thenThrow(NotFoundException.class);
         assertThrows(NotFoundException.class, () -> itemService.create(0L, itemCreateDto));
     }
 
@@ -107,14 +106,12 @@ class ItemServiceImplTest {
 
     @Test
     void updateWithUserNotFoundException() {
-        when(userRepository.findById(0L)).thenThrow(NotFoundException.class);
         assertThrows(NotFoundException.class, () -> itemService.update(0L, 1L, itemUpdateDto));
     }
 
     @Test
     void updateWithItemNotFoundException() {
         when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(owner));
-        when(itemRepository.findById(0L)).thenThrow(NotFoundException.class);
         assertThrows(NotFoundException.class, () -> itemService.update(1L, 0L, itemUpdateDto));
     }
 
@@ -135,16 +132,12 @@ class ItemServiceImplTest {
 
     @Test
     void getByIdWithUserNotFoundException() {
-        when(userRepository.findById(0L)).thenThrow(NotFoundException.class);
-
         assertThrows(NotFoundException.class, () -> itemService.getById(0L, 1L));
     }
 
     @Test
     void getByIdWithItemNotFoundException() {
         when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(owner));
-        when(itemRepository.findById(0L)).thenThrow(NotFoundException.class);
-
         assertThrows(NotFoundException.class, () -> itemService.getById(1L, 0L));
     }
 
@@ -167,8 +160,6 @@ class ItemServiceImplTest {
 
     @Test
     void getOwnerItemsWithException() {
-        when(userRepository.findById(0L)).thenThrow(NotFoundException.class);
-
         assertThrows(NotFoundException.class, () -> itemService.getOwnerItems(0L, 0, 10));
     }
 
@@ -185,8 +176,6 @@ class ItemServiceImplTest {
 
     @Test
     void searchWithException() {
-        when(userRepository.findById(0L)).thenThrow(NotFoundException.class);
-
         assertThrows(NotFoundException.class, () -> itemService.search(0L, "description", 0, 10));
     }
 
@@ -204,6 +193,16 @@ class ItemServiceImplTest {
         when(commentRepository.save(currentComment)).thenReturn(commentToCheck);
 
         assertEquals(comment, itemService.addComment(2L, 1L, commentCreateDto));
+    }
 
+    @Test
+    void addCommentWithItemNotFoundException() {
+        assertThrows(NotFoundException.class, () -> itemService.addComment(2L, 0L, commentCreateDto));
+    }
+
+    @Test
+    void addCommentWithUserNotFoundException() {
+        when(itemRepository.findById(1L)).thenReturn(Optional.ofNullable(item));
+        assertThrows(NotFoundException.class, () -> itemService.addComment(0L, 1L, commentCreateDto));
     }
 }
