@@ -3,12 +3,14 @@ package ru.practicum.shareit.booking.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 
@@ -16,6 +18,7 @@ import java.util.List;
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class BookingController {
     private final BookingService bookingService;
     private static final String userHeader = "X-Sharer-User-Id";
@@ -41,16 +44,16 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDto> getAll(@RequestHeader(userHeader) Long userId, @RequestParam(defaultValue = "ALL") String state,
-                                   @RequestParam(defaultValue = "0") int from,
-                                   @RequestParam(defaultValue = "10") int size) {
+                                   @RequestParam(defaultValue = "0") @Min(0) int from,
+                                   @RequestParam(defaultValue = "10") @Min(1) int size) {
         log.info("Get запрос на получение списка всех бронирований");
         return bookingService.getAll(userId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getAllOwner(@RequestHeader(userHeader) Long userId, @RequestParam(defaultValue = "ALL") String state,
-                                        @RequestParam(defaultValue = "0") int from,
-                                        @RequestParam(defaultValue = "10") int size) {
+                                        @RequestParam(defaultValue = "0") @Min(0) int from,
+                                        @RequestParam(defaultValue = "10") @Min(1) int size) {
         log.info("Get запрос на получени списка всех бронирований пользователя с id: {}", userId);
         return bookingService.getAllOwner(userId, state, from, size);
     }

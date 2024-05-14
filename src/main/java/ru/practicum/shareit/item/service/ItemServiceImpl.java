@@ -20,6 +20,7 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
@@ -38,6 +40,7 @@ public class ItemServiceImpl implements ItemService {
     private BookingMapper bookingMapper = new BookingMapper();
     private CommentMapper commentMapper = new CommentMapper();
 
+    @Override
     public ItemDto create(Long userId, ItemCreateDto itemCreateDto) {
         User user = userRepository.findById(userId).orElseThrow(() -> {
             throw new NotFoundException("Нет пользователя с таким id");
@@ -46,6 +49,7 @@ public class ItemServiceImpl implements ItemService {
         return itemMapper.toItemDto(item);
     }
 
+    @Override
     public ItemDto update(Long userId, Long itemId, ItemUpdateDto itemUpdateDto) {
         userRepository.findById(userId).orElseThrow(() -> {
             throw new NotFoundException("Нет пользователя с таким id");
@@ -72,6 +76,7 @@ public class ItemServiceImpl implements ItemService {
         return itemMapper.toItemDto(item);
     }
 
+    @Override
     public ItemBookingDto getById(Long userId, Long itemId) {
         userRepository.findById(userId).orElseThrow(() -> {
             throw new NotFoundException("Нет пользователя с таким id");
@@ -94,16 +99,13 @@ public class ItemServiceImpl implements ItemService {
         return itemBookingDto;
     }
 
+    @Override
     public List<ItemBookingDto> getOwnerItems(Long userId, int from, int size) {
         userRepository.findById(userId).orElseThrow(() -> {
             throw new NotFoundException("Нет пользователя с таким id");
         });
-        if (from < 0 || size <= 0) {
-            throw new ValidationException("Некоректные данные");
-        }
         List<Item> items = itemRepository.findByOwnerId(userId, PageRequest.of(from / size, size));
         List<ItemBookingDto> itemBookingsDto = new ArrayList<>();
-
 
         for (Item item : items) {
             List<Booking> bookings = bookingRepository.findAllByItemIdOrderByStart(item.getId());
@@ -123,13 +125,11 @@ public class ItemServiceImpl implements ItemService {
         return itemBookingsDto;
     }
 
+    @Override
     public List<ItemDto> search(Long userId, String text, int from, int size) {
         userRepository.findById(userId).orElseThrow(() -> {
             throw new NotFoundException("Нет пользователя с таким id");
         });
-        if (from < 0 || size <= 0) {
-            throw new ValidationException("Некоректные данные");
-        }
 
         if (text.isEmpty()) {
             return Collections.emptyList();

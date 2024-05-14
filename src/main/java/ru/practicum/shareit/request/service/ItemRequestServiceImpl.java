@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.request.dto.ItemRequestCreateDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.mapper.RequestMapper;
@@ -41,9 +40,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         userRepository.findById(userId).orElseThrow(() -> {
             throw new NotFoundException("Нет такого пользователя");
         });
-        if (from < 0 || size <= 0) {
-            throw new ValidationException("Некоректные данные");
-        }
         List<ItemRequest> itemRequests = itemRequestRepository.findByRequesterId(userId, PageRequest.of(from / size, size));
         return itemRequests.stream().map(requestMapper::toItemRequestDto).collect(Collectors.toList());
     }
@@ -53,10 +49,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         userRepository.findById(userId).orElseThrow(() -> {
             throw new NotFoundException("Нет такого пользователя");
         });
-
-        if (from < 0 || size <= 0) {
-            throw new ValidationException("Некоректные данные");
-        }
         List<ItemRequest> itemRequests = itemRequestRepository.findByItemsOwnerId(userId, PageRequest.of(from / size, size));
         return itemRequests.stream().map(requestMapper::toItemRequestDto).collect(Collectors.toList());
     }

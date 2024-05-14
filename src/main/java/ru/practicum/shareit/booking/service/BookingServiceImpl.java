@@ -78,22 +78,20 @@ public class BookingServiceImpl implements BookingService {
         userRepository.findById(userId).orElseThrow(() -> {
             throw new NotFoundException("Нет такого пользователя");
         });
-        if (from < 0 || size <= 0) {
-            throw new ValidationException("Некоректные данные");
-        }
+        PageRequest pageRequest = PageRequest.of(from / size, size);
         switch (state) {
             case "ALL":
-                return convertToBookingDto(bookingRepository.findAllByBookerIdOrderByStartDesc(userId, PageRequest.of(from / size, size)));
+                return convertToBookingDto(bookingRepository.findAllByBookerIdOrderByStartDesc(userId, pageRequest));
             case "CURRENT":
-                return convertToBookingDto(bookingRepository.findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId, LocalDateTime.now(), LocalDateTime.now(), PageRequest.of(from / size, size)));
+                return convertToBookingDto(bookingRepository.findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId, LocalDateTime.now(), LocalDateTime.now(), pageRequest));
             case "PAST":
-                return convertToBookingDto(bookingRepository.findAllByBookerIdAndEndIsBeforeOrderByStartDesc(userId, LocalDateTime.now(), PageRequest.of(from / size, size)));
+                return convertToBookingDto(bookingRepository.findAllByBookerIdAndEndIsBeforeOrderByStartDesc(userId, LocalDateTime.now(), pageRequest));
             case "FUTURE":
-                return convertToBookingDto(bookingRepository.findAllByBookerIdAndStartIsAfterOrderByStartDesc(userId, LocalDateTime.now(), PageRequest.of(from / size, size)));
+                return convertToBookingDto(bookingRepository.findAllByBookerIdAndStartIsAfterOrderByStartDesc(userId, LocalDateTime.now(), pageRequest));
             case "WAITING":
-                return convertToBookingDto(bookingRepository.findAllByBookerIdAndStartIsAfterAndStatusOrderByStartDesc(userId, LocalDateTime.now(), BookingStatus.valueOf(state), PageRequest.of(from / size, size)));
+                return convertToBookingDto(bookingRepository.findAllByBookerIdAndStartIsAfterAndStatusOrderByStartDesc(userId, LocalDateTime.now(), BookingStatus.valueOf(state), pageRequest));
             case "REJECTED":
-                return convertToBookingDto(bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.valueOf(state), PageRequest.of(from / size, size)));
+                return convertToBookingDto(bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.valueOf(state), pageRequest));
             default:
                 throw new UnsupportedStatusException("Unknown state: " + state);
         }
@@ -104,22 +102,20 @@ public class BookingServiceImpl implements BookingService {
         userRepository.findById(userId).orElseThrow(() -> {
             throw new NotFoundException("Нет такого пользователя");
         });
-        if (from < 0 || size <= 0) {
-            throw new ValidationException("Некоректные данные");
-        }
+        PageRequest pageRequest = PageRequest.of(from / size, size);
         switch (state) {
             case "ALL":
-                return convertToBookingDto(bookingRepository.findAllByItemOwnerIdOrderByStartDesc(userId, PageRequest.of(from / size, size)));
+                return convertToBookingDto(bookingRepository.findAllByItemOwnerIdOrderByStartDesc(userId, pageRequest));
             case "CURRENT":
-                return convertToBookingDto(bookingRepository.findAllByItemOwnerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId, LocalDateTime.now(), LocalDateTime.now(), PageRequest.of(from / size, size)));
+                return convertToBookingDto(bookingRepository.findAllByItemOwnerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId, LocalDateTime.now(), LocalDateTime.now(), pageRequest));
             case "PAST":
-                return convertToBookingDto(bookingRepository.findAllByItemOwnerIdAndEndIsBeforeOrderByStartDesc(userId, LocalDateTime.now(), PageRequest.of(from / size, size)));
+                return convertToBookingDto(bookingRepository.findAllByItemOwnerIdAndEndIsBeforeOrderByStartDesc(userId, LocalDateTime.now(), pageRequest));
             case "FUTURE":
-                return convertToBookingDto(bookingRepository.findAllByItemOwnerIdAndStartIsAfterOrderByStartDesc(userId, LocalDateTime.now(), PageRequest.of(from / size, size)));
+                return convertToBookingDto(bookingRepository.findAllByItemOwnerIdAndStartIsAfterOrderByStartDesc(userId, LocalDateTime.now(), pageRequest));
             case "WAITING":
-                return convertToBookingDto(bookingRepository.findAllByItemOwnerIdAndStartIsAfterAndStatusOrderByStartDesc(userId, LocalDateTime.now(), BookingStatus.valueOf(state), PageRequest.of(from / size, size)));
+                return convertToBookingDto(bookingRepository.findAllByItemOwnerIdAndStartIsAfterAndStatusOrderByStartDesc(userId, LocalDateTime.now(), BookingStatus.valueOf(state), pageRequest));
             case "REJECTED":
-                return convertToBookingDto(bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.valueOf(state), PageRequest.of(from / size, size)));
+                return convertToBookingDto(bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.valueOf(state), pageRequest));
             default:
                 throw new UnsupportedStatusException("Unknown state: " + state);
         }
