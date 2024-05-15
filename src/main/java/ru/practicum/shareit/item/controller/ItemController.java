@@ -3,11 +3,13 @@ package ru.practicum.shareit.item.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 
@@ -15,22 +17,12 @@ import java.util.List;
 @RequestMapping("/items")
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class ItemController {
 
     private final ItemService itemService;
     private static final String userHeader = "X-Sharer-User-Id";
 
-    @GetMapping
-    public List<ItemBookingDto> getOwnerItems(@RequestHeader(userHeader) Long userId) {
-        log.info("Get запрос на получение всех вещей пользователя с id: {}", userId);
-        return itemService.getOwnerItems(userId);
-    }
-
-    @GetMapping("/{itemId}")
-    public ItemBookingDto getById(@RequestHeader(userHeader) Long userId, @PathVariable Long itemId) {
-        log.info("Get запрос на получение вещи с id: {}", itemId);
-        return itemService.getById(userId, itemId);
-    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -45,10 +37,26 @@ public class ItemController {
         return itemService.update(userId, itemId, itemUpdateDto);
     }
 
+    @GetMapping
+    public List<ItemBookingDto> getOwnerItems(@RequestHeader(userHeader) Long userId,
+                                              @RequestParam(defaultValue = "0") @Min(0) int from,
+                                              @RequestParam(defaultValue = "10") @Min(1) int size) {
+        log.info("Get запрос на получение всех вещей пользователя с id: {}", userId);
+        return itemService.getOwnerItems(userId, from, size);
+    }
+
+    @GetMapping("/{itemId}")
+    public ItemBookingDto getById(@RequestHeader(userHeader) Long userId, @PathVariable Long itemId) {
+        log.info("Get запрос на получение вещи с id: {}", itemId);
+        return itemService.getById(userId, itemId);
+    }
+
     @GetMapping("/search")
-    public List<ItemDto> search(@RequestHeader(userHeader) Long userId, @RequestParam String text) {
+    public List<ItemDto> search(@RequestHeader(userHeader) Long userId, @RequestParam String text,
+                                @RequestParam(defaultValue = "0") @Min(0) int from,
+                                @RequestParam(defaultValue = "10") @Min(1) int size) {
         log.info("Get запрос на получение всех вещей, имя или описание которых содержит текст: {}", text);
-        return itemService.search(userId, text);
+        return itemService.search(userId, text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")

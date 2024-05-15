@@ -1,6 +1,6 @@
 package ru.practicum.shareit.user.service;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.mapper.UserMapper;
@@ -13,11 +13,11 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class UserServiceImpl implements UserService {
-    private UserMapper mapper;
-    private UserRepository repository;
+    private final UserMapper mapper = new UserMapper();
+    private final UserRepository repository;
 
     public List<UserDto> getAll() {
         List<User> users = repository.findAll();
@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public UserDto create(UserCreateDto userCreateDto) {
-        User user = repository.save(mapper.userCreateDto(userCreateDto));
+        User user = repository.save(mapper.userCreate(userCreateDto));
         return mapper.toUserDto(user);
     }
 
@@ -58,6 +58,9 @@ public class UserServiceImpl implements UserService {
     }
 
     public void delete(Long id) {
+        repository.findById(id).orElseThrow(() -> {
+            throw new NotFoundException("Нет пользователя с таким id");
+        });
         repository.deleteById(id);
     }
 
